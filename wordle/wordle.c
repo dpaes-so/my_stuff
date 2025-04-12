@@ -24,6 +24,12 @@ int get_word(char *input,char ***words,char **list)
             break;
         i++;
     }
+    // if(ft_strncmp(input,"daily",5) == 0)
+    // {
+    //     free(wlist);
+    //     free(temp);
+    //     return(2);
+    // }
     if(!list[i])
     {
         printf("invalid list name\n");
@@ -108,11 +114,13 @@ void print_feedback(char *guess, char *word)
         else if(ft_strchr(word,guess[i]) && letter_count[guess[i] - 'a'] > 0 && flag)
         {
             check = i;
-            // printf("check= %d\n",check);
             while(check < len - 1)
             {
-                if(guess[i] == word[check])
-                    flag = 0;
+                if(guess[check] == word[check])
+                {
+                    if(letter_count[guess[i] - 'a'] < 2)
+                        flag = 0;
+                }
                 check++;
             }
             if(!flag)
@@ -143,6 +151,28 @@ void print_feedback(char *guess, char *word)
     }
     printf("\n");
 }
+
+// char *get_daily_word(char **word_list)
+// {
+//     struct timeval tv;
+//     gettimeofday(&tv, NULL);
+
+//     // (void)word_list;
+//     // Get the current date (ignoring time) as a single value
+//     struct tm *tm_info = localtime(&tv.tv_sec);
+//     int year = tm_info->tm_year + 1900;  // tm_year is years since 1900
+//     int month = tm_info->tm_mon + 1;     // tm_mon is 0-based
+//     int day = tm_info->tm_mday;
+
+//     // Combine year, month, and day to get a unique number for the day
+//     unsigned int daily_value = year * 10000 + month * 100 + day;
+//     srand(daily_value);
+
+//     int index = rand() % MAX_WORDS;
+
+//     return word_list[index];
+//     // return("mango\n");
+// }
 
 int main()
 {
@@ -179,9 +209,13 @@ int main()
         free(cgame_mode);
         exit(1);
     }
-    free(cgame_mode);
-    srand(time(NULL));
-    word = words[rand() % word_count];
+    // if(ft_strncmp(cgame_mode,"daily",5) == 0)
+    //     word = get_daily_word(words);
+    // else
+    // {
+        srand(time(NULL));
+        word = words[rand() % word_count];
+    // }
 
     while(guesses < attempts) 
     {
@@ -192,6 +226,7 @@ int main()
         {
             ft_printf("\nToo bad! the choosen word was = %s\n",word);
             freetrix(guess);
+            free(cgame_mode);
             freetrix(words);
             exit(1);
         }
@@ -205,7 +240,9 @@ int main()
         {
             ft_printf("Correct! You win!\n");
             freetrix(guess);
+            // if(ft_strncmp(cgame_mode,"daily",5) != 0)
             freetrix(words);
+            free(cgame_mode);
             exit(0);
         }
         print_feedback(guess[guesses],word);
@@ -214,4 +251,5 @@ int main()
     ft_printf("\nChoosen word = %s\n",word);
     freetrix(words);
     freetrix(guess);
+    free(cgame_mode);
 }
