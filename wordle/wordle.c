@@ -1,16 +1,45 @@
 #include "wordle.h"
-int get_word(char *wlist,char ***words)
+int get_word(char *input,char ***words,char **list)
 {
     int fd;
     int i;
     char *str;
+    char *wlist;
+    char *temp;
+
+    // (void)wlist;
     i = 0;
+    temp = malloc(sizeof(char) * ft_strlen(input));
+    while(input[i] && input[i] != '\n')
+    {
+        temp[i] = input[i];
+        i++;
+    }
+    temp[i] = '\0';
+    wlist = ft_strjoin(temp,".txt");
+    i = 0;
+    while(list[i])
+    {
+        if(ft_strncmp(wlist,list[i],ft_strlen(wlist)) == 0)
+            break;
+        i++;
+    }
+    if(!list[i])
+    {
+        printf("invalid list name\n");
+        free(wlist);
+        free(temp);
+        return(-1);
+    }
     fd = open(wlist,O_RDONLY);
     if(fd < 0)
     {
         ft_printf("FAILED TO OPEN THE WORD LIST\n");
-        exit(1);
+        free(wlist);
+        free(temp);
+        return(-1);
     }
+    i = 0;
     *words = ft_calloc(sizeof(char *), MAX_WORDS);
     while(1)
     {
@@ -29,6 +58,8 @@ int get_word(char *wlist,char ***words)
     (*words)[i] = NULL;
     close(fd);
     printf("\n\n\n");
+    free(wlist);
+    free(temp);
     return(i);
 }
 
@@ -36,17 +67,78 @@ void print_feedback(char *guess, char *word)
 {
     int i;
     int len;
+    int key;
+    char letter;
+    int letter_count[26] = {0};
+    int j = 0;
+    int check;
+    int flag;
+    static char keyboard[26] = {
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+    'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
 
+    key = 0;
     i = 0;
     len = ft_strlen(word);
+    while (j < len - 1)
+    {
+        letter_count[word[j] - 'a']++;
+        // printf("letter count %c is %d\n",word[j],letter_count[word[j] - 'a']);
+        j++;
+    }
     while(i < len - 1)
     {
-        if(guess[i] == word[i])
-            printf(GREEN "%c" RESET, guess[i]);
-        else if(ft_strchr(word,guess[i]))
-            printf(YELLOW "%c" RESET, guess[i]);
+        flag = 1;
+        key = 0;
+        if(guess[i] >= 'a' && guess[i] <= 'z')
+            letter = guess[i] - 32;
         else
-            printf(RED "%c" RESET, guess[i]);
+            letter = guess[i];
+        // printf("letter = %c\n",letter);
+        while( key < 26 && letter != keyboard[key])
+            key++;
+        if(key < 26)
+            keyboard[key] = '0';
+
+        if(guess[i] == word[i])
+        {
+            printf(GREEN "%c" RESET, letter);
+            letter_count[guess[i] - 'a']--;
+        }
+        else if(ft_strchr(word,guess[i]) && letter_count[guess[i] - 'a'] > 0 && flag)
+        {
+            check = i;
+            // printf("check= %d\n",check);
+            while(check < len - 1)
+            {
+                if(guess[i] == word[check])
+                    flag = 0;
+                check++;
+            }
+            if(!flag)
+                printf(RED "%c" RESET,letter);
+            else
+            {
+                printf(YELLOW "%c" RESET,letter);
+                letter_count[guess[i] - 'a']--;
+            }
+        }
+        else
+            printf(RED "%c" RESET,letter);
+        i++;
+    }
+
+    printf("\n\n");
+    i = 0;
+    while(i < 26)
+    {
+        if(keyboard[i] != '0')
+            printf("%c",keyboard[i]);
+        else
+            printf(" ");
+        printf("   ");
+        if(i == 10 || i == 20)
+            printf("\n");
         i++;
     }
     printf("\n");
@@ -57,11 +149,11 @@ int main()
     char **words;
     char *word;
     int guesses = 0;
+    char *cgame_mode;
     int attempts = 6;//HOW MANY ATTEMPS MAX TO GUESS THE WORD
     char **guess = ft_calloc(attempts,sizeof(char *));
-    int word_count = get_word("words.txt",&words);
-    srand(time(NULL));
-    word = words[rand() % word_count];
+    int i =-1;
+    char *games[26] = {"animal.txt","words.txt"};
     printf(YELLOW " __          ________ _      _____ ____  __  __ ______   _______ ____  \n");
     printf(" \\ \\        / /  ____| |    / ____/ __ \\|  \\/  |  ____| |__   __/ __ \\ \n");
     printf("  \\ \\  /\\  / /| |__  | |   | |   | |  | | \\  / | |__       | | | |  | |\n");
@@ -74,6 +166,22 @@ int main()
     printf("    \\  /\\  / | |__| | | \\ \\| |__| | |____| |                           \n");
     printf("     \\/  \\/   \\____/|_|  \\_\\_____/|______|_|                           \n");
     printf(RESET "\n");
+
+    ft_printf("\nCHOOSE GAME MODE!\n\n");
+    while(games[++i])
+        ft_printf("%s   ",games[i]);
+    ft_printf("\n\n->");
+    cgame_mode = get_next_line(0);
+    int word_count = get_word(cgame_mode,&words,games);
+    if(word_count < 0)
+    {
+        freetrix(guess);
+        free(cgame_mode);
+        exit(1);
+    }
+    free(cgame_mode);
+    srand(time(NULL));
+    word = words[rand() % word_count];
 
     while(guesses < attempts) 
     {

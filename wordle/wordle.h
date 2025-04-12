@@ -20,7 +20,7 @@
 #include "time.h"
 #include "fcntl.h"
 
-#define MAX_WORDS 20000
+#define MAX_WORDS 10000
 
 #define GREEN "\033[0;32m"
 #define YELLOW "\033[0;33m"
