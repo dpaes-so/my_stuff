@@ -89,7 +89,7 @@ void print_feedback(char *guess, char *word)
     while (j < len - 1)
     {
         letter_count[word[j] - 'a']++;
-        // printf("letter count %c is %d\n",word[j],letter_count[word[j] - 'a']);
+        printf("letter count %c is %d\n",word[j],letter_count[word[j] - 'a']);
         j++;
     }
     while(i < len - 1)
@@ -100,7 +100,7 @@ void print_feedback(char *guess, char *word)
             letter = guess[i] - 32;
         else
             letter = guess[i];
-        // printf("letter = %c\n",letter);
+        printf("letter = %c\n",letter);
         while( key < 26 && letter != keyboard[key])
             key++;
         if(key < 26)
@@ -116,10 +116,14 @@ void print_feedback(char *guess, char *word)
             check = i;
             while(check < len - 1)
             {
-                if(guess[check] == word[check])
+                if(guess[check] == word[check] && guess[check] == guess[i])
                 {
+                    printf("check = %c\n",guess[check]);
                     if(letter_count[guess[i] - 'a'] < 2)
+                    {
                         flag = 0;
+                        printf("GYA\n");
+                    }
                 }
                 check++;
             }
