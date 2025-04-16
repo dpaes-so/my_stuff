@@ -1,0 +1,12 @@
+arg_split.c
+arg_split.o
+aux.c
+aux.o
+includes
+infile
+Makefile
+outfile
+pipex
+pipex.c
+pipex.h
+pipex.o
