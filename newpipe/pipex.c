@@ -200,11 +200,10 @@ void wait_child(t_pipe *pipex)
     while(i < pipex->cmd)
     {
         wait(&status);
-        // ft_printf("AYO");
+		if (WIFEXITED(status))
+			pipex->status = WEXITSTATUS(status);
         i++;
     }
-    if (WIFEXITED(status))
-		pipex->status = WEXITSTATUS(status);
 }
 int	main(int ac, char **av, char *env[])
 {
@@ -219,7 +218,7 @@ int	main(int ac, char **av, char *env[])
         while(++pipex.cmd < ac - 1)
             ft_pipex(pipex,env);
         wait_child(&pipex);
-        ft_printf("status %d \n",pipex.status);
+		freetrix(pipex.path);
         exit(pipex.status);
 	}
 	else
